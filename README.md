@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="https://cdn.discordapp.com/attachments/1229100815713701909/1231353125257089065/Peer_Logo_Full.png?ex=66258276&is=662430f6&hm=2b508662c4a66df27984df8c8a2b4a31fbfef329c620b927027068f3520b7ff9&" />
+</p>
+
 # Peer: A Decentralized Platform for Scientific Publication and Peer Review
 Welcome to Peer, a revolutionary web3 platform designed to transform the landscape of scientific publishing by harnessing the power of blockchain technology and community governance. At Peer, researchers can upload their scientific papers, receive immediate legitimacy checks through our on-chain AI powered by Galadriel, and engage in community-driven peer review.
 
