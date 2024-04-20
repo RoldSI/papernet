@@ -3,6 +3,7 @@ import HomePage from "./pages/HomePage";
 import Submit from "./pages/Submit";
 import Review from "./pages/Review";
 import Browse from "./pages/Browse";
+import Donate from "./pages/Donate";
 
 function App() {
     return (
@@ -14,6 +15,7 @@ function App() {
                         <li><Link to="/submit">Submit</Link></li>
                         <li><Link to="/review">Review</Link></li>
                         <li><Link to="/browse">Browse</Link></li>
+                        <li><Link to="/donate">Donate</Link></li>
                     </ul>
                 </nav>
             </header>
@@ -22,6 +24,7 @@ function App() {
                 <Route path="/submit" element={<Submit />} />
                 <Route path="/review" element={<Review />} />
                 <Route path="/browse" element={<Browse />} />
+                <Route path="/donate" element={<Donate />} />
             </Routes>
         </div>
     );
