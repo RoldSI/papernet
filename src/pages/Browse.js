@@ -44,11 +44,6 @@ function Browse() {
         setLoading(false);
     }
 
-    const handleClick = (url) => {
-        // This function will open the URL in a new tab
-
-    };
-
     if(loading) {
         return (
             <div className="flex flex-col justify-center items-center pt-20">

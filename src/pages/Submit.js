@@ -105,9 +105,14 @@ function Submit() {
 
         const [isValid, reasonForRejection] = await checkPaper(fullURL);
 
-        console.log(isValid);
-        console.log(reasonForRejection);
-        return;
+        if(!isValid) {
+            console.log(isValid);
+            console.log(reasonForRejection);
+            alert("Not a valid paper!");
+            alert(reasonForRejection);
+            setLoading(false);
+            return;
+        }
 
         await connect();
         contract = new web3.eth.Contract(ABI, "0x1abF46F1d1cD48ae64cD1Ff1cA5E2FfA8EB3ef0F"); //initialzie contract
