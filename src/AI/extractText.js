@@ -1,21 +1,34 @@
-const fs = require('fs');
-const pdf = require('pdf-parse');
-
-// Import ethers from Hardhat package
-// import readline from "readline";
+import { getDocument } from 'pdfjs-dist/legacy/build/pdf';
 
 const { Web3 } = require('web3');
-// import abi_groq from './abi_groq.json' assert { type: "json" };
 const abi_groq = require('./abi_groq.json');
 
-async function checkPaper(filePath) {
-    let dataBuffer = fs.readFileSync(filePath);
-    
-    pdf(dataBuffer).then(function(data) {
-        return ratePaper(data.text, false);
-    }).catch(function(error) {
-        console.log(error);
-        return [false, "Error parsing PDF!"];
+// async function checkPaper(filePath) {
+//     let dataBuffer = fs.readFileSync(filePath);
+//
+//     pdf(dataBuffer).then(function(data) {
+//         return ratePaper(data.text, false);
+//     }).catch(function(error) {
+//         console.log(error);
+//         return [false, "Error parsing PDF!"];
+//     });
+// }
+
+function checkPaper(pdfUrl) {
+    var loadingTask = getDocument(pdfUrl);
+    loadingTask.promise.then(function(pdf) {
+        const numPages = pdf.numPages;
+        const textPromises = [];
+        for (let i = 1; i <= numPages; i++) {
+            textPromises.push(pdf.getPage(i).then(page => page.getTextContent().then(textContent => {
+                return textContent.items.map(item => item.str).join(' ');
+            })));
+        }
+        Promise.all(textPromises).then(pagesText => {
+            console.log(pagesText.join('\n')); // Full text of the PDF
+        });
+    }).catch(function(reason) {
+        console.error(reason);
     });
 }
 
@@ -73,4 +86,6 @@ async function ratePaper(text, verbose) {
     }
 }
 
-checkPaper('test3.pdf');
+export { checkPaper };
+
+// checkPaper('test3.pdf');
