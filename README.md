@@ -12,8 +12,8 @@ Welcome to Peer, a revolutionary web3 platform designed to transform the landsca
 2. **AI Verification**: Papers undergo an automatic legitimacy check via Galadriel's on-chain AI.
 3. **Community Review**: Papers are then posted on "talk.online" for community voting. A paper needs at least 5 votes to be considered for acceptance.
 4. **Acceptance and Reward Distribution**: If the community approves a paper, it is officially published on Peer. Authors are rewarded quarterly from a central pool. The distribution depends on the total funds available:
-* **Equal Distribution**: If funds are below a certain threshold, all qualifying authors receive an equal share.
-* **Citation-Based Distribution**: Excess funds are distributed proportionally based on the number of citations each paper receives.
+    - **Equal Distribution**: If funds are below a certain threshold, all qualifying authors receive an equal share.
+    - **Citation-Based Distribution**: Excess funds are distributed proportionally based on the number of citations each paper receives.
 
 ## Technology Stack
 * **React**: For building a dynamic and responsive front-end user interface.
