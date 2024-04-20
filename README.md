@@ -25,7 +25,7 @@ To get started with Peer:
 
 1. **Clone the Repository**:
 ```console
-git clone https://github.com/peer-platform/peer.git
+git clone https://github.com/RoldSI/peer.git
 ```
 2. **Install Dependencies**:
 ```console
@@ -33,7 +33,7 @@ cd peer
 npm install
 ```
 3. **Run the Application**:
-```
+```console
 npm start
 ```
 
