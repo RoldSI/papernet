@@ -3,7 +3,7 @@
 </p>
 
 # Peer: A Decentralized Platform for Scientific Publication and Peer Review
-Welcome to Peer, a revolutionary web3 platform designed to transform the landscape of scientific publishing by harnessing the power of blockchain technology and community governance. At Peer, researchers can upload their scientific papers, receive immediate legitimacy checks through our on-chain AI powered by Galadriel, and engage in community-driven peer review. However, perhaps most importantly, scientists get fairly rewarded for their contributions through quarterly payouts.
+Welcome to Peer, a revolutionary web3 platform designed to transform the landscape of scientific publishing by harnessing the power of blockchain technology and community governance. At Peer, researchers can upload their scientific papers, receive immediate legitimacy checks through our on-chain AI powered by Galadriel, and engage in community-driven peer review. Additionally and most importantly, scientists get fairly rewarded for their contributions through quarterly payouts.
 
 ## Features
 * **On-Chain AI Validation**: Every paper submitted is automatically verified for legitimacy by cutting-edge AI, powered by Galadriel, running directly on the blockchain.
