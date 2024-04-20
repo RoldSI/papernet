@@ -1,22 +1,15 @@
+import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf';
 import { getDocument } from 'pdfjs-dist/legacy/build/pdf';
+
+pdfjsLib.GlobalWorkerOptions.workerSrc = process.env.PUBLIC_URL + '/pdf.worker.mjs';
 
 const { Web3 } = require('web3');
 const abi_groq = require('./abi_groq.json');
 
-// async function checkPaper(filePath) {
-//     let dataBuffer = fs.readFileSync(filePath);
-//
-//     pdf(dataBuffer).then(function(data) {
-//         return ratePaper(data.text, false);
-//     }).catch(function(error) {
-//         console.log(error);
-//         return [false, "Error parsing PDF!"];
-//     });
-// }
-
 function checkPaper(pdfUrl) {
+    console.log("came here!");
     var loadingTask = getDocument(pdfUrl);
-    loadingTask.promise.then(function(pdf) {
+    return loadingTask.promise.then(function(pdf) {
         const numPages = pdf.numPages;
         const textPromises = [];
         for (let i = 1; i <= numPages; i++) {
@@ -24,11 +17,12 @@ function checkPaper(pdfUrl) {
                 return textContent.items.map(item => item.str).join(' ');
             })));
         }
-        Promise.all(textPromises).then(pagesText => {
-            console.log(pagesText.join('\n')); // Full text of the PDF
+        return Promise.all(textPromises).then(pagesText => {
+            return ratePaper(pagesText.join('\n'), false);
         });
     }).catch(function(reason) {
         console.error(reason);
+        return [false, "Error parsing PDF!"];  // Ensure an array is returned here
     });
 }
 
@@ -39,8 +33,6 @@ async function ratePaper(text, verbose) {
     const wallet = provider.eth.wallet.add(PRIVATE_KEY);
 
     // Create a contract instance
-    //   const contract = new ethers.Contract(contractAddress, contractABI, signer);?
-
     const contract = new provider.eth.Contract(abi_groq, GROQ_CONTRACT_ADDRESS);
     var prompt = 'Could the following snippet be a part of a scientific paper? Note that this is only a piece of a bigger paper. Answer "Yes" or "No". "'
 
@@ -54,29 +46,24 @@ async function ratePaper(text, verbose) {
 
     if (verbose) console.log(message);
 
-    //   Call the startChat function
-    // const transactionResponse = await contract.startChat(message);
-    const transactionResponse = await contract.methods.startChat(message).send({
+    // Call the startChat function
+    await contract.methods.startChat(message).send({
         from: wallet[0].address
     })
 
-    //   const receipt = await transactionResponse.wait();
-    //   console.log(`Transaction sent, hash: ${receipt.hash}.\nExplorer: https://explorer.galadriel.com/tx/${receipt.hash}`)
-    //   console.log(`Image generation started with message: "${message}"`);
+    // Loop and sleep by 1000ms, and keep printing `lastResponse` in the contract.
+    let lastResponse = await contract.methods.viewResponse().call();
+    let newResponse = lastResponse;
 
-      // loop and sleep by 1000ms, and keep printing `lastResponse` in the contract.
-      let lastResponse = await contract.methods.viewResponse().call();
-      let newResponse = lastResponse;
-
-      // print w/o newline
-      if (verbose) console.log("Waiting for response: ");
-      while (newResponse === lastResponse) {
+    // print w/o newline
+    if (verbose) console.log("Waiting for response: ");
+    while (newResponse === lastResponse) {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         newResponse = await contract.methods.viewResponse().call();
         if (verbose) console.log(".");
-      }
+    }
 
-    if (newResponse.substring(0, 3) == "Yes") {
+    if (newResponse.substring(0, 3) === "Yes") {
         console.log("Accepted.");
         return [true, ""];
     } else {
@@ -87,5 +74,3 @@ async function ratePaper(text, verbose) {
 }
 
 export { checkPaper };
-
-// checkPaper('test3.pdf');

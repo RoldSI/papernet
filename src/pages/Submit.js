@@ -100,14 +100,13 @@ function Submit() {
         const res = await pinFileToIPFS(file, title);
         const id = res['IpfsHash'];
 
-        const url = `https://ipfs.io/ipfs/${id}`;
-        alert(url);
-        const checkResult = await checkPaper(url);
-        if(checkResult[0]===false) {
-            alert(checkResult[1]);
-            return;
-        }
-        alert("passed AI check");
+        const baseURL = 'https://ipfs.io/ipfs/';
+        const fullURL = `${baseURL}${id}`;
+
+        const [isValid, reasonForRejection] = await checkPaper(fullURL);
+
+        console.log(isValid);
+        console.log(reasonForRejection);
         return;
 
         await connect();
