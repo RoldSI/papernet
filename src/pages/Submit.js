@@ -3,6 +3,7 @@ import axios from 'axios';
 import { Web3 } from "web3";
 import ABI from "./../abi.json";
 import { DNA } from 'react-loader-spinner';
+import { checkPaper } from "../ai/extractText"
 
 const FormData = require('form-data')
 const JWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySW5mb3JtYXRpb24iOnsiaWQiOiJiZmIzODc4ZC1jODFkLTQ1ZTEtYjliZC05NDA2ZWUzMjY3MGUiLCJlbWFpbCI6InN0ZW50X3N0ZXBzXzB0QGljbG91ZC5jb20iLCJlbWFpbF92ZXJpZmllZCI6dHJ1ZSwicGluX3BvbGljeSI6eyJyZWdpb25zIjpbeyJpZCI6IkZSQTEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX0seyJpZCI6Ik5ZQzEiLCJkZXNpcmVkUmVwbGljYXRpb25Db3VudCI6MX1dLCJ2ZXJzaW9uIjoxfSwibWZhX2VuYWJsZWQiOmZhbHNlLCJzdGF0dXMiOiJBQ1RJVkUifSwiYXV0aGVudGljYXRpb25UeXBlIjoic2NvcGVkS2V5Iiwic2NvcGVkS2V5S2V5IjoiNDI5OGU1YzU0MTM0NWJjMTllNjUiLCJzY29wZWRLZXlTZWNyZXQiOiJmNGU2Y2QwYTRkMzhjYjhkNTU5NGQ1OTU2OGJlZTMzOGM5ZWEyNzU2OWRkNWNiNjJjMjk1ZDk1MDI2MWQ0NWUzIiwiaWF0IjoxNzEzNjE0MDgxfQ.zpmDvalI4RMZZ3S0VnpQbPzw6nGGald31M3IjvQ4xx4';
@@ -91,9 +92,27 @@ function Submit() {
             alert('Please select a file to upload.');
             return;
         }
+        if (file.type !== 'application/pdf') {
+            alert('Please upload a PDF file.');
+            return;
+        }
         setLoading(true);
         const res = await pinFileToIPFS(file, title);
         const id = res['IpfsHash'];
+
+        const baseURL = 'https://ipfs.io/ipfs/';
+        const fullURL = `${baseURL}${id}`;
+
+        const [isValid, reasonForRejection] = await checkPaper(fullURL);
+
+        if(!isValid) {
+            console.log(isValid);
+            console.log(reasonForRejection);
+            alert("Not a valid paper!");
+            alert(reasonForRejection);
+            setLoading(false);
+            return;
+        }
 
         await connect();
         contract = new web3.eth.Contract(ABI, "0x1abF46F1d1cD48ae64cD1Ff1cA5E2FfA8EB3ef0F"); //initialzie contract
