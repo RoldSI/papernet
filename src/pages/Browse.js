@@ -56,7 +56,7 @@ function Browse() {
     if(init) {
         return (
             <div className="flex flex-col justify-center items-center pt-20">
-                <button onClick={ini} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <button onClick={ini} className="text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     load papers
                 </button>
             </div>
@@ -73,7 +73,7 @@ function Browse() {
                     <div><strong>Cited Total:</strong> {paper.citedTotal}</div>
                     <div><button onClick={() => {
                         window.open(`https://ipfs.io/ipfs/${paper.id}`, '_blank', 'noopener,noreferrer');
-                    }} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">
+                    }} className="text-white font-bold py-1 px-2 rounded focus:outline-none focus:shadow-outline">
                         link to paper
                     </button></div>
                 </div>

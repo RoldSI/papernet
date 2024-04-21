@@ -112,7 +112,7 @@ function Review() {
     if(init) {
         return (
             <div className="flex flex-col justify-center items-center pt-20">
-                <button onClick={handleStart} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <button onClick={handleStart} className="text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Start reviewing ...
                 </button>
             </div>
@@ -132,7 +132,7 @@ function Review() {
             </div>
         ) : (
         <div className="max-w-lg mx-auto p-4 shadow-md rounded-lg bg-white flex flex-col">
-            <button onClick={handleClick} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button onClick={handleClick} className="text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Link to Paper
             </button><br/>
             <div className="flex justify-center gap-2">

@@ -116,7 +116,13 @@ function Submit() {
 
         await connect();
         contract = new web3.eth.Contract(ABI, "0x1abF46F1d1cD48ae64cD1Ff1cA5E2FfA8EB3ef0F"); //initialzie contract
-        await contract.methods.addEntry(id, citations, authors).send({ from: accounts[0] });
+        // const estimatedGas = await contract.methods.addEntry(id, citations, authors).estimateGas({ from: accounts[0] });
+        // Executing the transaction with a specified gas limit and gas price
+        await contract.methods.addEntry(id, citations, authors).send({
+            from: accounts[0],
+            gasLimit: String(50000), // adding a buffer to the estimated gas
+            gasPrice: web3.utils.toWei('20', 'gwei')
+        });
 
         // alert(`Title: ${title}, Authors: ${authors.join(', ')}, Citations: ${citations.join(', ')}, File: ${file.name} was uploaded successfully, file hash: ${id}`);
         setFile(null);
@@ -141,7 +147,7 @@ function Submit() {
                         New submission.
                     </button>
                 </div>
-            ) : (<form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 shadow-md rounded-lg bg-white">
+            ) : (<form onSubmit={handleSubmit} className="max-w-lg mx-auto p-4 shadow-md rounded-lg">
             <div className="mb-4">
                 <label className="block text-gray-700 text-sm font-bold mb-2">
                     Paper Title:
@@ -185,9 +191,11 @@ function Submit() {
                     />
                 </label>
             </div>
-            <button type="submit" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Submit Paper
-            </button>
+            <div className="flex justify-center">
+                <button type="submit" id="submit_paper" className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                    Submit Paper
+                </button>
+            </div>
         </form>
     )));
 }
