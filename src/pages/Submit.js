@@ -116,7 +116,13 @@ function Submit() {
 
         await connect();
         contract = new web3.eth.Contract(ABI, "0x1abF46F1d1cD48ae64cD1Ff1cA5E2FfA8EB3ef0F"); //initialzie contract
-        await contract.methods.addEntry(id, citations, authors).send({ from: accounts[0] });
+        // const estimatedGas = await contract.methods.addEntry(id, citations, authors).estimateGas({ from: accounts[0] });
+        // Executing the transaction with a specified gas limit and gas price
+        await contract.methods.addEntry(id, citations, authors).send({
+            from: accounts[0],
+            gasLimit: String(50000), // adding a buffer to the estimated gas
+            gasPrice: web3.utils.toWei('20', 'gwei')
+        });
 
         // alert(`Title: ${title}, Authors: ${authors.join(', ')}, Citations: ${citations.join(', ')}, File: ${file.name} was uploaded successfully, file hash: ${id}`);
         setFile(null);

@@ -28,12 +28,13 @@ function Donate() {
 
         const recipientAddress = "0x6169710e36a89cc2ef55D4e209dAC05BF4Ce0A48"; // Replace with your ETH address
         const amountToSend = web3.utils.toWei(donationAmount, 'ether'); // Convert the amount to wei
-
         try {
             const tx = {
                 from: accounts[0],
                 to: recipientAddress,
-                value: amountToSend
+                value: amountToSend,
+                gasLimit: String(50000), // adding a buffer to the estimated gas
+                gasPrice: web3.utils.toWei('20', 'gwei')
             };
 
             const transactionReceipt = await web3.eth.sendTransaction(tx);
