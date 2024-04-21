@@ -1,20 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { Routes, Route, Link } from 'react-router-dom';
+import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import HomePage from "./pages/HomePage";
 import Submit from "./pages/Submit";
 import Review from "./pages/Review";
 import Browse from "./pages/Browse";
-// <<<<<<< HEAD
 import Donate from "./pages/Donate";
-// =======
 import logo from './pages/assets/Peer_Logo_Full.svg';
+import logoAlt from './pages/assets/Peer_Logo_Alt.svg';
 import metamaskLogo from './pages/assets/metamask_logo.png';
 import arrowRight from './pages/assets/arrow_right.png';
 import Web3 from 'web3';
-// >>>>>>> 3ab7309 (landing page design done)
 
 function App() {
     const [isMetaMaskConnected, setIsMetaMaskConnected] = useState(false);
+    const location = useLocation();
 
     useEffect(() => {
         checkMetaMaskConnection();
@@ -34,9 +33,7 @@ function App() {
     const connectMetaMask = async () => {
         if (window.ethereum) {
             try {
-                // Request account access if needed
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
-                // Accounts now exposed, refresh the state of accounts
                 checkMetaMaskConnection();
             } catch (error) {
                 console.error("Failed to connect MetaMask:", error);
@@ -46,20 +43,26 @@ function App() {
         }
     };
 
+    const isHomePage = location.pathname === '/';
+
     return (
         <div>
-            <header className="flex justify-between items-center bg-white-800 text-white p-4">
+            <header className={`flex justify-between items-center p-4 ${isHomePage ? 'bg-transparent' : 'text-white'}`} style={{
+                backgroundColor: isHomePage ? 'transparent' : '#2B3D40', // Ensure correct background color when not on home page
+                boxShadow: isHomePage ? 'none' : '0 2px 10px rgba(0,0,0,0.3)', // Drop shadow when not on the home page
+                marginBottom: '20px'
+            }}>
                 <Link to="/" className="flex items-center peer_logo">
-                    <img src={logo} alt="Peer Logo" className="mr-4" />
+                    <img src={isHomePage ? logo : logoAlt} alt="Peer Logo" style={{ height: isHomePage ? '120px' : '50px' }} /> {/* Larger logo on home page */}
                 </Link>
                 <nav className="flex items-center">
                     <ul className="flex space-x-4 mr-4">
-                        <li><Link to="/submit">Submit</Link></li>
-                        <li><Link to="/review">Review</Link></li>
-                        <li><Link to="/browse">Browse</Link></li>
-                        <li><Link to="/donate">Donate</Link></li>
+                        <li><Link to="/submit" className={isHomePage ? '' : 'text-white'}>Submit</Link></li>
+                        <li><Link to="/review" className={isHomePage ? '' : 'text-white'}>Review</Link></li>
+                        <li><Link to="/browse" className={isHomePage ? '' : 'text-white'}>Browse</Link></li>
+                        <li><Link to="/donate" className={isHomePage ? '' : 'text-white'}>Donate</Link></li>
                     </ul>
-                    <button onClick={connectMetaMask} className={`flex items-center px-3 py-2 rounded ${isMetaMaskConnected ? 'connected' : 'bg-blue-500'}`}>
+                    <button id="white_text" onClick={connectMetaMask} className={`flex items-center px-3 py-2 rounded ${isMetaMaskConnected ? 'connected' : 'bg-blue-500'}`}>
                         {isMetaMaskConnected ? (
                             <>
                                 <div className="status-dot bg-green-500" />
