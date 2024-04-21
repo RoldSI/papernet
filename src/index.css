@@ -133,7 +133,7 @@ img {
 }
 
 .hero .container {
-    background: url('./pages/assets/landing_page_image_1.svg') no-repeat;
+    background: url('./pages/assets/landing_page_image_1.png') no-repeat;
     background-size: contain;
     background-position: center right;
     height: 200px; /* You might want to adjust this as needed */
