@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web3 Social Media</title>
+
+    <link rel="stylesheet" href="./style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="./blockies_test/blockies.js"></script>
+</head>
+<body>
+    <header>Talk Online</header>
+
+    <div class="container">
+        <div class="menu">
+
+                <a href="./account.html">Account</a>
+                <a href="./tags.html">Tags</a>
+                <a href="./token.html">TALK</a>
+                <select name="options" id="options">
+                    <option value="new">New</option>
+                    <option value="popular">Popular</option>
+                    <option value="random">Random</option>
+                    <option value="recommended">Recommended</option>
+                    <option value="newUnf">New (Unfiltered)</option>
+                    <option value="garbage">Garbage</option>
+                </select>
+
+        </div>
+        
+        <form class="create-post-form" id="createPost">
+            <br>
+        </form>
+        
+    </div>
+
+    <div id = "posts">
+        <img src = "./loadTalk.gif" style = "display: block; margin-left: auto; margin-right: auto" id = "loadingGif" class = "loading">
+    </div>
+            <script type = "module">
+            
+
+                // TODO: format tagging
+                // <button style="border-radius: 50%; border: 1px solid #93E9BE; background-color: #008b8b; padding: 10px 15px; display: inline-flex; align-items: center; justify-content: center;"><i class="fa-solid fa-tag" style="color: white; font-size: 12px;"></i></button>
+                // Save the selected algorithm to localStorage when it changes
+                document.getElementById('options').addEventListener('change', function() {
+                    localStorage.setItem('selectedAlgo', this.value);
+
+                    location.reload();
+
+                });
+
+                var selectedAlgo = localStorage.getItem('selectedAlgo');
+                if (selectedAlgo) {
+                    document.getElementById('options').value = selectedAlgo;
+                }
+
+
+                import { ethers } from "./ethers.min.js";
+                // TODO: why no importing punk abi and address work on safari?
+                import { forumAddress, forumAbi, tagAddress, tagAbi, tokenAddress, tokenAbi } from './polygon/constants.js';
+                import { getENSName, isURL, getFileType, handleURL, formatDateForDisplay, buttonMaker, fetchReplies, fetchTags, loadContent, activateContent} from './polygon/helpers.js';
+                import { enableAlgo } from './polygon/algo.js';
+
+                // A Web3Provider wraps a standard Web3 provider, which is
+                // what MetaMask injects as window.ethereum into each page
+
+                let provider;
+                if(window.ethereum){
+                    provider = new ethers.providers.Web3Provider(window.ethereum);
+                    let signer;
+                    try{
+                        let network = await provider.getNetwork();
+                        if (network.chainId == 137) {
+                            // MetaMask requires requesting permission to connect users accounts
+                            await provider.send("eth_requestAccounts", []);
+                            // The MetaMask plugin also allows signing transactions to
+                            // send ether and pay to change state within the blockchain.
+                            // For this, you need the account signer...
+                            signer = provider.getSigner();document.getElementById("createPost").innerHTML = `<input type="text" placeholder="Post a link! Say something." id = "post-content"> <button class="sendPost" >Send it</button>`;
+                        }
+                        else{
+                            provider = new ethers.providers.JsonRpcProvider("https://polygon-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+                            document.getElementById("createPost").innerHTML = "Please switch your network to Polygon";
+                        }  
+
+                    }
+                    catch(error){
+                        provider = new ethers.providers.JsonRpcProvider("https://polygon-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+                        console.log(provider);
+                        document.getElementById("createPost").innerHTML = "Unable to detect network";
+                    }
+                    
+                    const forumViewer = new ethers.Contract(forumAddress, forumAbi, provider);
+                    const tagViewer = new ethers.Contract(tagAddress, tagAbi, provider);
+                    //const punkViewer = new ethers.Contract(punkAddress, punkAbi, provider);
+                    displayContent(forumViewer, "posts", tagViewer);
+                    const contractSigner = new ethers.Contract(forumAddress, forumAbi, signer);
+                    activateContent(contractSigner);
+                }
+                else{
+                    document.getElementById("createPost").innerHTML = "Sign in with a <a href = \"./web3.html\">Web3 provider</a>";
+                    provider = new ethers.providers.JsonRpcProvider("https://polygon-mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+                    const forumViewer = new ethers.Contract(forumAddress, forumAbi, provider);
+                    const tagViewer = new ethers.Contract(tagAddress, tagAbi, provider);
+                    displayContent(forumViewer, "posts", tagViewer);
+                }
+
+                document.getElementById('posts').addEventListener('click', async (event) => {
+                    if (event.target.id === 'clickableReplies') {
+                        let repliesElement = event.target.closest('tr');
+                        let firstTdHTML = repliesElement.querySelector('td:first-child').outerHTML;
+                        const forumContract = new ethers.Contract(forumAddress, forumAbi, provider);
+                        const postElement = event.target.closest('article');
+                        if (!postElement) return;  // If clicked outside a post, exit
+                        // Fetch the post ID from the link in the post header
+                        const postIDLink = postElement.querySelector('h1 a');
+                        if (!postIDLink) return;  // If the link isn't found, exit
+                        const postID = postIDLink.textContent;
+                        // Create new content
+                        let newContent = repliesElement.querySelector('td:nth-child(2)').outerHTML.replace("\"two-thirds\"", "\"one-sixth\"");
+                        let replyContent = await fetchReplies(postID, forumContract);
+                        replyContent = replyContent.join('');
+                        newContent += `<td class="two-thirds" id="replyContent">` + replyContent + `</td>`;
+                        
+                        // Update the innerHTML of the entire row
+                        repliesElement.innerHTML = firstTdHTML + newContent;
+                    }
+
+                    try {
+                        const signer = provider.getSigner();
+                        await signer.getAddress();
+                    }
+                    catch (error){
+                        // document.getElementsById.givenPostsFooter.innerHTML += "Sign in with web3"
+                        // TODO: Fix infinite error messages?
+                        let errorElement = event.target.closest('#givenPostsFooter');
+                        errorElement.innerHTML += `Sign in with <a href = \"./web3.html\">web3</a> `;
+                    }
+                });
+ 
+                function displayContent(forumViewer, sectionID, tagViewer){
+                    const cardContainer = document.getElementById(sectionID);
+                    let currentPage = 1;
+                    const cardLimit = 999;
+                    const cardIncrease = 6;
+                    const pageCount = Math.ceil(cardLimit / cardIncrease);
+                    let throttleTimer;
+                    const throttle = (callback, time) => {
+                        if (throttleTimer) return;
+                        throttleTimer = true;
+                        setTimeout(() => {
+                            callback();
+                            throttleTimer = false;
+                        }, time);
+                    };
+
+                    const addCards = async(pageIndex) => {
+                        
+                        currentPage = pageIndex;
+                        const startRange = (pageIndex - 1) * cardIncrease;
+                        const endRange = currentPage == pageCount ? cardLimit : pageIndex * cardIncrease;
+                        var algo = document.getElementById("options").value;
+                        var postIds = await enableAlgo(algo, forumViewer, currentPage, 0);
+                        document.getElementById("loadingGif").style.display = "none";
+                        for (let i = startRange + 1; i <= endRange; i++) {
+                            createPost(i, postIds.pop());
+                        }
+                    };
+                    let ensProvider = new ethers.providers.JsonRpcProvider("https://mainnet.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161");
+                    // Turn createPost to createPosts so it generates a new squad of posts instead of calling the infura api multiple times
+                    const createPost = async (index, postID) => {
+                        const post = document.createElement("article");
+                        post.className = "post";
+                        post.id = `post${index}`;
+                        // TODO: postID will actually need to be an array of posts
+                        post.innerHTML = await loadContent(postID, forumViewer, provider, ensProvider, tagViewer);
+                        cardContainer.appendChild(post);
+                        return post;
+                    }
+                    const handleInfiniteScroll = () => {
+                        throttle(() => {
+                            const endOfPage = window.innerHeight + window.pageYOffset >= document.body.offsetHeight;
+                            if (endOfPage) {
+                                console.log("you scrolled");
+                                addCards(currentPage + 1);
+                            }
+                            if (currentPage === pageCount) {
+                                removeInfiniteScroll();
+                            }
+                        }, 1000);
+
+                    };
+
+                    const removeInfiniteScroll = () => {
+                        window.removeEventListener("scroll", handleInfiniteScroll);
+                    };
+                    addCards(currentPage);
+                    window.addEventListener("scroll", handleInfiniteScroll);
+
+                }
+
+            </script>
+</body>
+</html>
